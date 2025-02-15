@@ -1,2 +1,2 @@
 # Exploring-Diabetes-Risk-Through-a-Cell-Based-Simulation-Model
-Using R
+The cell-based model simulates diabetes progression in a synthetic population of 1000 individuals over 10 years, factoring in age, gender, diet, and exercise. Each person is assigned a risk level (Low, Moderate, or High) based on these factors. Transition probabilities vary by risk level, affecting the likelihood of staying healthy or progressing to Pre- diabetes, Diabetes, or complications. After 10 years, most individuals (894) remain healthy, while fewer progress to Pre-diabetes (78) or Diabetes (27), and only 1 person experiences complications, reflecting the long-term impact of lifestyle and demographics on diabetes progression.
