@@ -1,0 +1,90 @@
+---
+title: "Exploring Diabetes Risk Through a Cell-Based Simulation Model"
+author: "Joshua Edefo"
+email: "edefojoshu2000@yahoo.com"
+date: "2025-02-15"
+output: github_document
+---
+The cell-based model simulates diabetes progression in a synthetic population of 1000 individuals over 10 years, factoring in age, gender, diet, and exercise. Each person is assigned a risk level (Low, Moderate, or High) based on these factors. Transition probabilities vary by risk level, affecting the likelihood of staying healthy or progressing to Pre- diabetes, Diabetes, or complications. After 10 years, most individuals (894) remain healthy, while fewer progress to Pre-diabetes (78) or Diabetes (27), and only 1 person experiences complications, reflecting the long-term impact of lifestyle and demographics on diabetes progression.
+
+Libraries
+```{r a, message=FALSE}
+library(usethis)
+library(dplyr)
+```
+
+Cell Based Model
+
+```{r b}
+## Set directory
+setwd("C:\\Users\\joe62\\OneDrive - Aberystwyth University\\Apps\\Desktop\\Destop Folder")
+
+## Set parameters
+set.seed(123)  # For reproducibility
+years <- 10    # Number of years to simulate
+population_size <- 1000
+
+## Generate a synthetic population
+population <- data.frame(
+  id = 1:population_size,
+  age = sample(30:80, population_size, replace = TRUE),
+  gender = sample(c("Male", "Female"), population_size, replace = TRUE),
+  diet = sample(c("Healthy", "Moderate", "Unhealthy"), population_size, replace = TRUE, prob = c(0.3, 0.4, 0.3)),
+  exercise = sample(c("High", "Moderate", "Low"), population_size, replace = TRUE, prob = c(0.3, 0.4, 0.3)),
+  state = "Healthy"  # Initial state
+)
+
+## Function to assign risk category based on demographics, diet, and exercise
+assign_risk <- function(age, gender, diet, exercise) {
+  risk <- 0
+  if (diet == "Unhealthy") risk <- risk + 2
+  if (exercise == "Low") risk <- risk + 2
+  if (age > 50) risk <- risk + 1
+  if (gender == "Male") risk <- risk + 1
+  
+  if (risk <= 1) return("Low")
+  if (risk == 2 | risk == 3) return("Moderate")
+  return("High")
+}
+
+## Assign risk levels using vectorized approach
+population$risk <- mapply(assign_risk, population$age, population$gender, population$diet, population$exercise)
+
+## Transition probabilities based on risk category
+transition_probs <- list(
+  Low = c(Healthy = 0.98, PreDiabetes = 0.02, Diabetes = 0, Complications = 0),
+  Moderate = c(Healthy = 0.90, PreDiabetes = 0.08, Diabetes = 0.02, Complications = 0),
+  High = c(Healthy = 0.75, PreDiabetes = 0.15, Diabetes = 0.08, Complications = 0.02)
+)
+
+## Function to simulate state transition based on risk
+simulate_transition <- function(risk) {
+  probs <- transition_probs[[risk]]
+  states <- c("Healthy", "PreDiabetes", "Diabetes", "Complications")
+  new_state <- sample(states, 1, prob = c(probs["Healthy"], probs["PreDiabetes"], probs["Diabetes"], probs["Complications"]))
+  return(new_state)
+}
+
+## Simulate over time
+for (year in 1:years) {
+  population$state <- sapply(population$risk, simulate_transition)
+}
+
+## Summary of final states
+state_summary <- table(population$state)
+print(state_summary)
+
+```
+
+summary of the model output
+After 10 years, the majority of individuals (894) remained healthy. 
+A smaller number developed PreDiabetes (78) or Diabetes (27). 
+Only one individual progressed to complications,
+
+
+Session information
+```{r cE}
+sessionInfo()
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
